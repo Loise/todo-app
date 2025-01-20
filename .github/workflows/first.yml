@@ -13,3 +13,10 @@ jobs:
         #cache: yarn
     - run: npm ci --legacy-peer-deps
     - run: npm test
+    - name: Setup EAS
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    - name: 🚀 Build app
+      run: eas build --platform android --non-interactive --no-wait
