@@ -1,0 +1,33 @@
+name: CI et CD todo app
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        #cache: yarn
+    - run: npm ci --legacy-peer-deps
+    - run: npm test
+    - name: Setup EAS
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    - name: 🚀 Build app
+      run: eas build --platform android --non-interactive --no-wait
+    - name: Install Netlify
+      run: npm install netlify-cli -g
+    - name: Build web
+      run: yarn build-web
+    - name: Deploy to Netlify
+      id: netlify_deploy
+      run: |
+        netlify deploy \
+        --dir ./dist \
+        --site ${{ secrets.SITEID }} \
+        --auth ${{ secrets.TOKENSITE }}
